@@ -1,60 +1,87 @@
 <template>
-  <div id="app">
-    <Header :subpropChecked="subpropChecked" />
-    <PrimarySelector v-for="(property,index) in localData.properties" :key="index" :subpropChecked="subpropChecked" :property="property" />
-
-    <!-- <div :class="{'hide': hideMode}">
-      <div v-for="(property, index) in properties" :key="index">
-        <div class="property border p-t-b-7 align">
-          {{property.name}}
-          <input type="checkbox" @click="checkAll" v-model="isCheckAll" />
-        </div>
-
-        <div
-          class="subproperty border p-t-b-7 align"
-          v-for="(subproperty,index) in property.subproperties"
-          :key="index"
-        >
-          {{subproperty}}
-          <input
-            type="checkbox"
-            v-bind:value="subproperty"
-            v-model="subprop"
-            @change="updateCheckall"
-          />
-        </div>
-      </div>
-      <div class="apply-btn" @click="hideMode = !hideMode">Apply</div>
-    </div> -->
+   <div id="app">
+    <span  @click="hideMode = !hideMode"> 
+      <Header  :subpropChecked="subpropChecked" />
+    </span>
+    <span :class="{'hide': hideMode}">
+      <PrimarySelector 
+        v-for="(property,index) in localData.properties" 
+        :key="index" 
+        :subpropChecked="subpropChecked" 
+        :property="property" 
+      />
+      <div class="apply-btn" @click="Apply">Apply</div>
+    </span>
   </div>
 </template>
 
 <script>
 import localData from "./helpers/localData";
-import Header from './components/Header';
-import PrimarySelector from './components/PrimarySelector.vue';
+import Header from "./components/Header";
+import PrimarySelector from "./components/PrimarySelector.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     Header,
-    PrimarySelector
+    PrimarySelector,
   },
   data() {
-    return{
+    return {
+      hideMode: false,
       localData: localData,
       subpropChecked: {
         names: [],
-        ids: []
-      }
-    }
+        ids: [],
+      },
+    };
   },
-  mounted() {
-    console.log(localData)
+  watch: {
+    "subpropChecked.ids": {
+      handler: function (newVal, oldVal) {
+        this.localData.properties.forEach((property) => {
+          if (!newVal.includes(property.id)) {
+            const hasAllChecked = this.checkElements(property, newVal);
+
+            if (hasAllChecked) {
+              this.subpropChecked.ids.push(property.id)
+            }
+          } else {
+            const hasAllChecked = this.checkElements(property, newVal);
+            if (!hasAllChecked) {
+              this.subpropChecked.ids = this.filterElements(
+                property.id,
+                newVal
+              );
+            }
+          }
+        });
+      },
+      deep: true,
+    },
   },
   methods: {
-  }
-}
+    Apply:function() {
+      console.log(this.subpropChecked.names);
+      return this.subpropChecked.names;
+
+    },
+    filterElements: function (value, localArr) {
+      return localArr.filter((localValue) => {
+        return value !== localValue;
+      });
+    },
+    checkElements: function (property, newVal) {
+      let hasAllChecked = true;
+      property.subproperties.forEach((subproperty) => {
+        if (hasAllChecked) {
+          hasAllChecked = newVal.includes(subproperty.id);
+        }
+      });
+      return hasAllChecked;
+    },
+  },
+};
 </script>
 
 <style>
@@ -66,22 +93,8 @@ export default {
   text-align: left;
   width: 350px;
 }
-.header {
-  background-color: #2195f1;
-  padding: 7px 10px;
-  color: white;
-  font-size: 20px;
-}
-.header span {
-  font-size: 15px;
-  color: #bfbfbf;
-}
-.property {
-  background-color: #ebebeb;
-  padding-left: 10px;
-}
-.subproperty {
-  padding-left: 20px;
+.hide{
+    display:none;
 }
 .border {
   border: 1px solid #cccccc;
@@ -94,9 +107,8 @@ export default {
   display: flex;
   justify-content: space-between;
 }
-
 .apply-btn {
-  text-align: Center;
+  text-align: center;
   color: #2195f1;
   border-top: 1px solid #2195f1;
 }

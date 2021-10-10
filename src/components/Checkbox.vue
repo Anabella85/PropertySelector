@@ -32,18 +32,9 @@ export default ({
                 this.subpropChecked.names.push(this.property.name);
             }
 
-            // if(this.subpropChecked.ids.includes(property.id) && this.subpropChecked.id === this.subParentId){
-            //     this.subpropChecked.ids.push(this.id);
-            //     this.subpropChecked.names.push(this.name);
-            // }else{
-            //     this.subpropChecked.ids = this.filterElements(this.id, localSubprop.ids)
-            //     this.subpropChecked.names = this.filterElements(this.name, localSubprop.names)
-            // }
-
             if(this.isParent){
                 if(this.isChecked ){
                     for(var i=0; i < this.property.subproperties.length; i++){
-                        console.log('test')
                         this.subpropChecked.ids = this.filterElements(this.property.subproperties[i].id, localSubprop.ids)
                         this.subpropChecked.names = this.filterElements(this.property.subproperties[i].name, localSubprop.names)
                         localSubprop.ids= [...this.subpropChecked.ids]
@@ -58,10 +49,8 @@ export default ({
                     }
                 }
             }
-        }
-       
+        }  
     }
-
 })
 </script>
 <style>
